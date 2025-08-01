@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import type * as LabelPrimitive from "@radix-ui/react-label";
@@ -29,7 +30,7 @@ const useForm = <TSchema extends ZodType>(
 ) => {
   const form = __useForm<z.infer<TSchema>>({
     ...props,
-    resolver: zodResolver(props.schema, undefined),
+    resolver: zodResolver(props.schema as any, undefined),
   });
 
   return form;
