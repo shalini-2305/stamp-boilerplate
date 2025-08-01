@@ -7,7 +7,10 @@ export const env = createEnv({
     SUPABASE_ANON_KEY: z.string().min(1),
   },
   client: {},
-  experimental__runtimeEnv: {},
+  runtimeEnv: {
+    SUPABASE_URL: process.env.SUPABASE_URL,
+    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
+  },
   skipValidation:
     !!process.env.CI || process.env.npm_lifecycle_event === "lint",
 });

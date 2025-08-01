@@ -34,7 +34,7 @@ export const authRouter = createTRPCRouter({
           timestamp: new Date().toISOString(),
         });
 
-        // Simplify: Just attempt the signup
+        // Attempt signup - Enhanced error handling will catch duplicates
         const { data: signupData, error: signupError } =
           await supabase.auth.signUp({
             email: normalizedEmail,
@@ -48,19 +48,59 @@ export const authRouter = createTRPCRouter({
             },
           });
 
+        console.log("Supabase signup response:", {
+          hasError: !!signupError,
+          hasData: !!signupData,
+          hasUser: !!signupData?.user,
+          userData: signupData?.user ? 'present' : 'missing',
+          errorDetails: signupError ? {
+            message: signupError.message,
+            status: signupError.status,
+            code: signupError.code,
+          } : null,
+        });
+
         if (signupError) {
-          console.error("Supabase signup error:", signupError);
+          console.error("Supabase signup error:", {
+            message: signupError.message,
+            status: signupError.status,
+            code: signupError.code,
+          });
+
+          // Enhanced duplicate detection patterns
+          if (
+            signupError.message?.toLowerCase().includes("already") ||
+            signupError.message?.toLowerCase().includes("user already registered") ||
+            signupError.message?.toLowerCase().includes("email already") ||
+            signupError.message?.toLowerCase().includes("duplicate") ||
+            signupError.message?.toLowerCase().includes("exists") ||
+            signupError.status === 422 ||
+            signupError.code === "user_already_exists" ||
+            signupError.code === "signup_disabled"
+          ) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "This email id is already registered, please signin",
+            });
+          }
+
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: signupError.message || "Error signing up",
           });
         }
 
-        if (!signupData.user) {
-          console.error("Signup data missing user");
+        // Check if signup was successful but no user was created
+        // This often indicates the email is already registered
+        if (!signupData?.user) {
+          console.warn("Signup returned success but no user created - likely duplicate email:", {
+            email: normalizedEmail,
+            signupData: signupData,
+          });
+
           throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Error signing up, user not created",
+            code: "CONFLICT",
+            message: "This email id is already registered, please signin",
           });
         }
 

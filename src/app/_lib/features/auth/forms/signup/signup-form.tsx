@@ -92,10 +92,28 @@ export function SignUpForm() {
     onError: (err) => {
       console.error("Signup error:", {
         message: err.message,
+        code: err.data?.code,
         timestamp: new Date().toISOString(),
       });
 
-      toast.error(err.message);
+      // Check if it's a "user already exists" error and show custom message
+      if (err.data?.code === "CONFLICT") {
+        toast.error("This email id is already registered, please signin", {
+          action: (
+            <Button
+              variant="outline"
+              onClick={() => {
+                toast.dismiss();
+                router.push("/auth/signin");
+              }}
+            >
+              Go to Sign In
+            </Button>
+          ),
+        });
+      } else {
+        toast.error(err.message || "An error occurred during signup");
+      }
     },
   });
 

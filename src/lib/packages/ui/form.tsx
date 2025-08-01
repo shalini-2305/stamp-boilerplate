@@ -29,7 +29,7 @@ const useForm = <TSchema extends ZodType>(
 ) => {
   const form = __useForm<z.infer<TSchema>>({
     ...props,
-    resolver: zodResolver(props.schema, undefined),
+    resolver: zodResolver(props.schema as any, undefined),
   });
 
   return form;
