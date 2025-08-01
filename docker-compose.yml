@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.pnpm-store
+      - /app/.turbo
+      - /app/packages/*/node_modules
+      - /app/packages/*/.turbo
+      - /app/packages/*/dist
+      - /app/apps/*/node_modules
+      - /app/apps/*/.turbo
+      - /app/apps/*/.next
+      - /app/tooling/*/node_modules
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+      - POSTGRES_URL=${POSTGRES_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_GOOGLE_ID=${AUTH_GOOGLE_ID}
+      - AUTH_GOOGLE_SECRET=${AUTH_GOOGLE_SECRET}
+      - AUTH_REDIRECT_PROXY_URL=${AUTH_REDIRECT_PROXY_URL}
+      - TURBO_DAEMON=false
+      - TURBO_UI=true
+    command: sh -c "node --version && npm --version && pnpm --version && ls -la node_modules/next && pnpm run dev:next"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-stampapp}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+
+volumes:
+  postgres_data:
+  turbo_cache:

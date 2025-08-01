@@ -1,0 +1,29 @@
+.signupForm {
+  @apply flex flex-col items-center justify-center gap-4;
+  @apply rounded-lg p-10;
+  @apply min-h-[80dvh] max-w-xl;
+  @apply border-0 bg-white/80 shadow-2xl backdrop-blur-sm;
+}
+
+.formTitle {
+  @apply text-2xl font-bold text-gray-800;
+}
+
+.form {
+  @apply flex flex-col gap-6;
+  @apply w-full max-w-md;
+}
+
+.passwordVisibilityToggle {
+  @apply absolute right-0 top-0;
+  @apply h-full px-3 py-2 hover:bg-transparent;
+}
+
+.passwordVisibilityToggleIcon {
+  @apply h-4 w-4;
+  @apply fill-foreground;
+}
+
+.signinLink {
+  @apply mt-4 text-sm font-medium text-blue-500 hover:text-blue-700;
+}

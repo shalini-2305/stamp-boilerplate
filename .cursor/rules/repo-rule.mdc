@@ -1,0 +1,16 @@
+---
+description: repo general rule
+globs:
+alwaysApply: false
+---
+# Rules
+
+- This is a next.js app version is 15, with React version being 19
+- Here's [package.json](mdc:package.json)
+- It is connected to supabase via Drizzle ORM
+- Drizzle codes - [client.ts](mdc:src/lib/packages/db/src/client.ts),  [drizzle.config.ts](mdc:src/lib/packages/db/drizzle.config.ts) and [schema.ts](mdc:src/lib/packages/db/src/schema.ts)
+- Here's trpc [root.ts](mdc:src/lib/packages/api/src/root.ts)
+- Here's Next auth [config.ts](mdc:src/lib/packages/auth/src/config.ts)
+- Here's shadcn ui w/ tailwind & cn [index.ts](mdc:src/lib/packages/ui/index.ts)
+
+Use General best practices. Try to make efficient, DRY code than recreating code or customising locally.

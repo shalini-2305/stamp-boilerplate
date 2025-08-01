@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    /** Base Options */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+
+    /** Keep TSC performant */
+    "incremental": true,
+
+    /** Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "checkJs": true,
+
+    /** Transpile using Bundler (not tsc) */
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+
+    /** Next.js */
+    "lib": ["ES2022", "dom", "dom.iterable"],
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@acme/*/env": ["./src/lib/packages/*/env"],
+      "@acme/*": ["./src/lib/packages/*"],
+      "@acme/db/*": ["./src/lib/packages/db/src/*"],
+      "~/*": ["./src/*"],
+      "@lib/*": ["./src/app/_lib/*"],
+      "@pages/*": ["./src/app/(pages)/*"],
+      "@/*": ["./src/*"]
+    },
+    "plugins": [{ "name": "next" }],
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
+    "module": "esnext",
+    "typeRoots": ["./node_modules/@types"]
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", "build", "dist", ".next"]
+}

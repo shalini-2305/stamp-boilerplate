@@ -1,0 +1,6 @@
+.flow-container {
+  @apply flex flex-col justify-start gap-6;
+  @apply mx-auto;
+  /* min-width: clamp(60vw, 50rem, 65vw); */
+  @apply w-full;
+}
