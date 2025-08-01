@@ -1,7 +1,6 @@
 "use client";
 
 import type { RouterOutputs } from "@acme/api";
-import { CreatePostSchema } from "@acme/db/schema";
 import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
 import {
@@ -14,48 +13,41 @@ import {
 } from "@acme/ui/form";
 import { Input } from "@acme/ui/input";
 import { toast } from "@acme/ui/toast";
+import { z } from "zod";
 
 import { api } from "~/trpc/react";
 
+const CreateProductSchema = z.object({
+  name: z.string().min(1),
+  price: z.number().min(0),
+});
+
 export function CreatePostForm() {
   const form = useForm({
-    schema: CreatePostSchema,
+    schema: CreateProductSchema,
     defaultValues: {
-      content: "",
-      title: "",
+      name: "",
+      price: 0,
     },
   });
 
-  const utils = api.useUtils();
-  const createPost = api.post.create.useMutation({
-    onSuccess: async () => {
-      form.reset();
-      await utils.post.invalidate();
-    },
-    onError: (err) => {
-      toast.error(
-        err.data?.code === "UNAUTHORIZED"
-          ? "You must be logged in to post"
-          : "Failed to create post",
-      );
-    },
-  });
+  const handleSubmit = () => {
+    toast.error("Create functionality not implemented yet");
+  };
 
   return (
     <Form {...form}>
       <form
         className="flex w-full max-w-2xl flex-col gap-4"
-        onSubmit={form.handleSubmit((data) => {
-          createPost.mutate(data);
-        })}
+        onSubmit={form.handleSubmit(handleSubmit)}
       >
         <FormField
           control={form.control}
-          name="title"
+          name="name"
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input {...field} placeholder="Title" />
+                <Input {...field} placeholder="Product Name" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -63,11 +55,18 @@ export function CreatePostForm() {
         />
         <FormField
           control={form.control}
-          name="content"
+          name="price"
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input {...field} placeholder="Content" />
+                <Input
+                  {...field}
+                  type="number"
+                  placeholder="Price"
+                  onChange={(e) =>
+                    field.onChange(parseFloat(e.target.value) || 0)
+                  }
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -80,10 +79,10 @@ export function CreatePostForm() {
 }
 
 export function PostList() {
-  const [posts] = api.post.all.useSuspenseQuery();
-  console.log(`posts: `, posts);
+  const [products] = api.product.all.useSuspenseQuery();
+  console.log(`products: `, products);
 
-  if (posts.length === 0) {
+  if (products.length === 0) {
     return (
       <div className="relative flex w-full flex-col gap-4">
         <PostCardSkeleton pulse={false} />
@@ -91,7 +90,7 @@ export function PostList() {
         <PostCardSkeleton pulse={false} />
 
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/10">
-          <p className="text-2xl font-bold text-white">No posts yet</p>
+          <p className="text-2xl font-bold text-white">No products yet</p>
         </div>
       </div>
     );
@@ -99,41 +98,32 @@ export function PostList() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      {posts.map((p) => {
-        return <PostCard key={p.id} post={p} />;
+      {products.map((product) => {
+        return <PostCard key={product.id} post={product} />;
       })}
     </div>
   );
 }
 
 export function PostCard(props: {
-  post: RouterOutputs["post"]["all"][number];
+  post: RouterOutputs["product"]["all"][number];
 }) {
-  const utils = api.useUtils();
-  const deletePost = api.post.delete.useMutation({
-    onSuccess: async () => {
-      await utils.post.invalidate();
-    },
-    onError: (err) => {
-      toast.error(
-        err.data?.code === "UNAUTHORIZED"
-          ? "You must be logged in to delete a post"
-          : "Failed to delete post",
-      );
-    },
-  });
+  const handleDelete = () => {
+    toast.error("Delete functionality not implemented yet");
+    console.log("Would delete product:", props.post.id);
+  };
 
   return (
     <div className="flex flex-row rounded-lg bg-muted p-4">
       <div className="flex-grow">
-        <h2 className="text-2xl font-bold text-primary">{props.post.title}</h2>
-        <p className="mt-2 text-sm">{props.post.content}</p>
+        <h2 className="text-2xl font-bold text-primary">{props.post.name}</h2>
+        <p className="mt-2 text-sm">Price: ${props.post.price}</p>
       </div>
       <div>
         <Button
           variant="ghost"
           className="cursor-pointer text-sm font-bold uppercase text-primary hover:bg-transparent hover:text-white"
-          onClick={() => deletePost.mutate(props.post.id)}
+          onClick={handleDelete}
         >
           Delete
         </Button>
